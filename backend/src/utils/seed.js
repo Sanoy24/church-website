@@ -1,7 +1,9 @@
 const db = require("../config/database");
 
+const hashedPassword = 
 async function run() {
     try {
+        const hashedPassword = await bcrypt.hash('password-hash-placeholder', 10);
         // Create users table
         await db.query(`CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,10 +62,10 @@ async function run() {
 
         // Insert sample users
         await db.query(
-            `INSERT OR IGNORE INTO users (id, email, password_hash, role) VALUES (1, 'admin@church.org', 'password-hash-placeholder', 'admin')`,
+            `INSERT OR IGNORE INTO users (id, email, password_hash, role) VALUES (1, 'admin@church.org', '$2a$10$Gz/ZPaiyF3yYjDAGh3D0uuyANSVOd9M0dcVioXJomsQg0q96POqpy', 'admin')`,
         );
         await db.query(
-            `INSERT OR IGNORE INTO users (id, email, password_hash, role) VALUES (2, 'editor@church.org', 'password-hash-placeholder', 'editor')`,
+            `INSERT OR IGNORE INTO users (id, email, password_hash, role) VALUES (2, 'editor@church.org', '$2a$10$Gz/ZPaiyF3yYjDAGh3D0uuyANSVOd9M0dcVioXJomsQg0q96POqpy', 'editor')`,
         );
 
         // Insert sample events
