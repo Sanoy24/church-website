@@ -62,8 +62,10 @@ async function run() {
 
         // Insert sample users
         await db.query(
+            // the password is =  password-hash-placeholder
             `INSERT OR IGNORE INTO users (id, email, password_hash, role) VALUES (1, 'admin@church.org', '$2a$10$Gz/ZPaiyF3yYjDAGh3D0uuyANSVOd9M0dcVioXJomsQg0q96POqpy', 'admin')`,
         );
+        // the password is =  password-hash-placeholder
         await db.query(
             `INSERT OR IGNORE INTO users (id, email, password_hash, role) VALUES (2, 'editor@church.org', '$2a$10$Gz/ZPaiyF3yYjDAGh3D0uuyANSVOd9M0dcVioXJomsQg0q96POqpy', 'editor')`,
         );
