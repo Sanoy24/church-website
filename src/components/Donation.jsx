@@ -1,38 +1,68 @@
-import { useState } from 'react';
-import { CreditCard, Copy, Check, Heart, ExternalLink } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { DollarSign, Copy, Check, Heart, ExternalLink } from 'lucide-react';
+import { api } from '../services/api';
 
 const Donation = () => {
-  const [copiedAccount, setCopiedAccount] = useState(null);
+  const [copiedIndex, setCopiedIndex] = useState(null);
+  const [accounts, setAccounts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const bankAccounts = [
-    {
-      bankName: "Commercial Bank of Ethiopia",
-      accountName: "Zegen Church Main",
-      accountNumber: "1000123456789",
-      type: "Local Transfer",
-      color: "bg-blue-600"
-    },
-    {
-      bankName: "Abyssinia Bank",
-      accountName: "Zegen Church Outreach",
-      accountNumber: "9876543210",
-      type: "Local Transfer",
-      color: "bg-red-700"
-    },
-    {
-      bankName: "International Wire",
-      accountName: "Zegen Church Global",
-      accountNumber: "SWIFT: ZEGENETXXXX",
-      type: "International",
-      color: "bg-secondary"
+  useEffect(() => {
+    loadAccounts();
+  }, []);
+
+  const loadAccounts = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await api.donations.getAll();
+      setAccounts(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-  ];
-
-  const copyToClipboard = (number) => {
-    navigator.clipboard.writeText(number);
-    setCopiedAccount(number);
-    setTimeout(() => setCopiedAccount(null), 2000);
   };
+
+  const copyToClipboard = (text, index) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  if (loading) {
+    return (
+      <section id="donation" className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center items-center py-20">
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading donation accounts...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section id="donation" className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-20">
+            <p className="text-red-600 mb-4">Failed to load donation accounts: {error}</p>
+            <button 
+              onClick={loadAccounts}
+              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="donate" className="py-24 bg-white">
@@ -47,45 +77,40 @@ const Donation = () => {
           <div className="w-24 h-1 bg-primary mx-auto mt-8"></div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {bankAccounts.map((account, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {accounts.map((account, index) => (
             <div 
-              key={index}
-              className="group relative bg-light rounded-2xl p-8 border border-gray-100 hover:border-primary/30 transition-all duration-300 hover:shadow-xl overflow-hidden"
+              key={index} 
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
             >
-              {/* Decorative background element */}
-              <div className={`absolute top-0 right-0 w-32 h-32 ${account.color} opacity-5 -mr-16 -mt-16 rounded-full transition-transform duration-500 group-hover:scale-150`}></div>
-              
-              <div className="relative z-10">
-                <div className={`w-14 h-14 ${account.color} rounded-xl flex items-center justify-center text-white mb-6 shadow-lg`}>
-                  <CreditCard size={28} />
+              <div className={`h-2 bg-${account.color}-500`}></div>
+              <div className="p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className={`w-12 h-12 rounded-full bg-${account.color}-100 flex items-center justify-center`}>
+                    <DollarSign className={`text-${account.color}-600`} size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-serif font-bold text-xl text-secondary">{account.bank_name}</h3>
+                    <p className="text-gray-500 text-sm">{account.account_type || 'Account'}</p>
+                  </div>
                 </div>
-                
-                <h3 className="text-xl font-bold text-secondary mb-1">{account.bankName}</h3>
-                <p className="text-xs text-primary font-bold uppercase tracking-widest mb-4">{account.type}</p>
-                
+
                 <div className="space-y-4">
                   <div>
-                    <span className="text-xs text-gray-400 block mb-1">Account Name</span>
-                    <p className="text-gray-800 font-medium">{account.accountName}</p>
+                    <p className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Account Name</p>
+                    <p className="text-gray-700 font-medium">{account.account_name}</p>
                   </div>
-                  
-                  <div className="bg-white/50 rounded-lg p-4 border border-gray-200">
-                    <span className="text-xs text-gray-400 block mb-1">Account Number</span>
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-lg font-mono font-bold text-secondary break-all">
-                        {account.accountNumber}
-                      </p>
-                      <button 
-                        onClick={() => copyToClipboard(account.accountNumber)}
-                        className={`p-2 rounded-lg transition-all ${
-                          copiedAccount === account.accountNumber 
-                          ? 'bg-green-100 text-green-600' 
-                          : 'bg-gray-100 text-gray-500 hover:bg-primary hover:text-white'
-                        }`}
-                        title="Copy Account Number"
+
+                  <div>
+                    <p className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Account Number</p>
+                    <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
+                      <p className="text-gray-700 font-mono font-bold tracking-wider">{account.account_number}</p>
+                      <button
+                        onClick={() => copyToClipboard(account.account_number, index)}
+                        className="text-gray-400 hover:text-primary transition-colors"
+                        title="Copy to clipboard"
                       >
-                        {copiedAccount === account.accountNumber ? <Check size={18} /> : <Copy size={18} />}
+                        {copiedIndex === index ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                       </button>
                     </div>
                   </div>

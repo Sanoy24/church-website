@@ -1,63 +1,37 @@
 import { useRef, useState, useEffect } from 'react';
 import { Play, Calendar, Clock, ChevronLeft, ChevronRight, X, Search, Filter } from 'lucide-react';
+import { api } from '../services/api';
 
 const Sermons = () => {
   const scrollRef = useRef(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sermons, setSermons] = useState([]);
+  const [allSermons, setAllSermons] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const sermons = [
-    {
-      title: "Walking in Faith",
-      series: "Foundations",
-      preacher: "Pastor John Doe",
-      date: "Oct 15, 2023",
-      image: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=2673&auto=format&fit=crop"
-    },
-    {
-      title: "The Power of Prayer",
-      series: "Foundations",
-      preacher: "Pastor Jane Smith",
-      date: "Oct 08, 2023",
-      image: "https://images.unsplash.com/photo-1544427920-c49ccfb85579?q=80&w=2574&auto=format&fit=crop"
-    },
-    {
-      title: "Community & Grace",
-      series: "Community",
-      preacher: "Pastor John Doe",
-      date: "Oct 01, 2023",
-      image: "https://images.unsplash.com/photo-1510590611086-309679432aa8?q=80&w=2669&auto=format&fit=crop"
-    },
-    {
-      title: "Hope in Hardship",
-      series: "Endurance",
-      preacher: "Pastor Jane Smith",
-      date: "Sep 24, 2023",
-      image: "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?q=80&w=2670&auto=format&fit=crop"
-    },
-    {
-      title: "Living with Purpose",
-      series: "Life Skills",
-      preacher: "Pastor John Doe",
-      date: "Sep 17, 2023",
-      image: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=2669&auto=format&fit=crop"
+  useEffect(() => {
+    loadSermons();
+  }, []);
+
+  const loadSermons = async () => {
+    try {
+      const recentData = await api.sermons.getRecent(5);
+      const allData = await api.sermons.getAll();
+      setSermons(recentData);
+      setAllSermons(allData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const sermonsArchive = [
-    ...sermons,
-    { title: "Strength in Weakness", series: "Foundations", preacher: "Pastor Mary King", date: "Sep 10, 2023", image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=2671&auto=format&fit=crop" },
-    { title: "The Art of Gratitude", series: "Life Skills", preacher: "Pastor John Doe", date: "Sep 03, 2023", image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=2574&auto=format&fit=crop" },
-    { title: "Peace Amidst Storms", series: "Endurance", preacher: "Pastor Jane Smith", date: "Aug 27, 2023", image: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=2670&auto=format&fit=crop" },
-    { title: "Leading with Love", series: "Community", preacher: "Pastor Mary King", date: "Aug 20, 2023", image: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=2574&auto=format&fit=crop" },
-    { title: "A Heart for Service", series: "Life Skills", preacher: "Pastor John Doe", date: "Aug 13, 2023", image: "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=2670&auto=format&fit=crop" },
-    { title: "Understanding Grace", series: "Foundations", preacher: "Pastor Jane Smith", date: "Aug 06, 2023", image: "https://images.unsplash.com/photo-1459183885447-df53d1f0d3bb?q=80&w=2670&auto=format&fit=crop" },
-  ];
-
-  const filteredSermons = sermonsArchive.filter(s => 
+  const filteredSermons = allSermons.filter(s => 
     s.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
     s.preacher.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.series.toLowerCase().includes(searchQuery.toLowerCase())
+    (s.series && s.series.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   useEffect(() => {
@@ -79,6 +53,39 @@ const Sermons = () => {
       });
     }
   };
+
+  if (loading) {
+    return (
+      <section id="sermons" className="py-20 bg-light">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center items-center py-20">
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading sermons...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section id="sermons" className="py-20 bg-light">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-20">
+            <p className="text-red-600 mb-4">Failed to load sermons: {error}</p>
+            <button 
+              onClick={loadSermons}
+              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="sermons" className="py-20 bg-light">
@@ -113,7 +120,7 @@ const Sermons = () => {
               >
                 <div className="relative h-48 md:h-56 group">
                   <img 
-                    src={sermon.image} 
+                    src={sermon.image_url} 
                     alt={sermon.title} 
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
@@ -126,9 +133,9 @@ const Sermons = () => {
                 <div className="p-6">
                   <div className="flex items-center gap-4 text-xs text-gray-500 mb-3 uppercase tracking-wide">
                     <div className="flex items-center gap-1">
-                      <Calendar size={14} /> {sermon.date}
+                      <Calendar size={14} /> {new Date(sermon.date).toLocaleDateString()}
                     </div>
-                    <span className="text-primary font-bold">{sermon.series}</span>
+                    {sermon.series && <span className="text-primary font-bold">{sermon.series}</span>}
                   </div>
                   <h3 className="text-xl font-serif font-bold text-secondary mb-2 hover:text-primary transition-colors cursor-pointer line-clamp-1">
                     {sermon.title}
@@ -217,7 +224,7 @@ const Sermons = () => {
                   >
                     <div className="relative h-48 overflow-hidden">
                       <img 
-                        src={sermon.image} 
+                        src={sermon.image_url} 
                         alt={sermon.title} 
                         className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
                       />
@@ -230,8 +237,8 @@ const Sermons = () => {
                     </div>
                     <div className="p-6">
                       <div className="flex justify-between items-start mb-2">
-                        <span className="text-[10px] text-primary font-bold uppercase tracking-widest px-2 py-1 bg-primary/10 rounded">{sermon.series}</span>
-                        <span className="text-[10px] text-gray-400 uppercase tracking-widest">{sermon.date}</span>
+                        {sermon.series && <span className="text-[10px] text-primary font-bold uppercase tracking-widest px-2 py-1 bg-primary/10 rounded">{sermon.series}</span>}
+                        <span className="text-[10px] text-gray-400 uppercase tracking-widest">{new Date(sermon.date).toLocaleDateString()}</span>
                       </div>
                       <h3 className="text-lg font-serif font-bold text-white mb-1 group-hover:text-primary transition-colors line-clamp-1">
                         {sermon.title}

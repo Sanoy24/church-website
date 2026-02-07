@@ -19,6 +19,25 @@ class User {
   static async verifyPassword(plainPassword, hashedPassword) {
     return await bcrypt.compare(plainPassword, hashedPassword);
   }
+
+  static async updatePassword(userId, newPassword) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const [result] = await pool.query(
+      'UPDATE users SET password_hash = ? WHERE id = ?',
+      [hashedPassword, userId]
+    );
+    return result.affectedRows;
+  }
+
+  static async getAll() {
+    const [rows] = await pool.query('SELECT id, email, role, created_at FROM users ORDER BY created_at DESC');
+    return rows;
+  }
+
+  static async delete(userId) {
+    const [result] = await pool.query('DELETE FROM users WHERE id = ?', [userId]);
+    return result.affectedRows;
+  }
 }
 
 module.exports = User;

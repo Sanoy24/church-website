@@ -1,35 +1,27 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, X } from 'lucide-react';
-
-const ministries = [
-  {
-    title: "Children's Ministry",
-    description: "Nurturing the next generation in faith and love through engaging activities and biblical teaching.",
-    detailedDescription: "Our Children's Ministry is dedicated to partnering with parents to lead children to become fully devoted followers of Christ. Through age-specific lessons, activities, and small groups, children learn biblical truths in a fun and safe environment. We offer programs for infants through 5th grade during all weekend services.",
-    schedule: "Sundays at 9:00 AM & 11:00 AM",
-    leader: "Sarah Johnson",
-    image: "https://images.unsplash.com/photo-1472162072942-cd5147eb3902?q=80&w=2669&auto=format&fit=crop"
-  },
-  {
-    title: "Youth Ministry",
-    description: "Empowering young people to live bold lives for Christ and make an impact in their world.",
-    detailedDescription: "The Youth Ministry exists to reach students with the gospel and teach them how to walk with the Lord. We provide a space for middle and high school students to belong, ask questions, and grow in their faith. Join us for high-energy worship, relevant teaching, and small group discussions.",
-    schedule: "Wednesdays at 7:00 PM",
-    leader: "Mark Davis",
-    image: "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?q=80&w=2669&auto=format&fit=crop"
-  },
-  {
-    title: "Global Outreach",
-    description: "Extending our hands to serve the community and spread the gospel across the nations.",
-    detailedDescription: "We believe the church is called to go beyond its four walls. Our Global Outreach team coordinates mission trips, supports local community projects, and partners with organizations worldwide to meet physical and spiritual needs. Everyone has a part to play in the Great Commission.",
-    schedule: "Various Monthly Events",
-    leader: "Dr. James Wilson",
-    image: "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2670&auto=format&fit=crop"
-  }
-];
+import { Users, X } from 'lucide-react';
+import { api } from '../services/api';
 
 const Ministries = () => {
+  const [ministries, setMinistries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedMinistry, setSelectedMinistry] = useState(null);
+
+  useEffect(() => {
+    loadMinistries();
+  }, []);
+
+  const loadMinistries = async () => {
+    try {
+      const data = await api.ministries.getAll();
+      setMinistries(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Disable body scroll when modal is open
     useEffect(() => {
@@ -39,6 +31,39 @@ const Ministries = () => {
       document.body.style.overflow = 'unset';
     }
   }, [selectedMinistry]);
+
+  if (loading) {
+    return (
+      <section id="ministries" className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center items-center py-20">
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading ministries...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section id="ministries" className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-20">
+            <p className="text-red-600 mb-4">Failed to load ministries: {error}</p>
+            <button 
+              onClick={loadMinistries}
+              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="ministries" className="py-20 bg-gray-50 relative">
@@ -51,15 +76,19 @@ const Ministries = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {ministries.map((ministry, index) => (
-            <div key={index} className="group bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="relative h-64 overflow-hidden">
-                <img 
-                  src={ministry.image} 
-                  alt={ministry.title} 
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/20 transition-colors duration-300"></div>
-              </div>
+            <div 
+            key={index} 
+            className="group bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2 relative"
+            onClick={() => setSelectedMinistry(ministry)}
+          >
+            <div className="h-64 overflow-hidden">
+              <img 
+                src={ministry.image_url} 
+                alt={ministry.title} 
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+            </div>
+    <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/20 transition-colors duration-300"></div>
               <div className="p-8">
                 <h3 className="text-2xl font-serif font-bold text-secondary mb-3">{ministry.title}</h3>
                 <p className="text-gray-600 mb-6 leading-relaxed">
@@ -96,7 +125,7 @@ const Ministries = () => {
             <div className="grid grid-cols-1 md:grid-cols-2">
               <div className="h-64 md:h-full min-h-[300px]">
                 <img 
-                  src={selectedMinistry.image} 
+                  src={selectedMinistry.image_url} 
                   alt={selectedMinistry.title} 
                   className="w-full h-full object-cover"
                 />
@@ -106,17 +135,27 @@ const Ministries = () => {
                 <h3 className="text-3xl md:text-4xl font-serif font-bold text-secondary mb-6">{selectedMinistry.title}</h3>
                 
                 <div className="space-y-6 text-gray-600 leading-relaxed">
-                  <p>{selectedMinistry.detailedDescription}</p>
+                  <p>{selectedMinistry.detailed_description}</p>
                   
                   <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 mt-6">
-                    <div className="mb-3">
-                      <span className="block font-bold text-secondary text-sm uppercase">Meeting Time</span>
-                      <span>{selectedMinistry.schedule}</span>
-                    </div>
-                    <div>
-                      <span className="block font-bold text-secondary text-sm uppercase">Team Leader</span>
-                      <span>{selectedMinistry.leader}</span>
-                    </div>
+                    {selectedMinistry.schedule && (
+                      <div className="flex items-start gap-3 mb-4">
+                        <Users className="text-primary flex-shrink-0 mt-1" size={20} />
+                        <div>
+                          <p className="font-bold text-secondary mb-1">Schedule</p>
+                          <p className="text-sm">{selectedMinistry.schedule}</p>
+                        </div>
+                      </div>
+                    )}
+                    {selectedMinistry.leader && (
+                      <div className="flex items-start gap-3">
+                        <Users className="text-primary flex-shrink-0 mt-1" size={20} />
+                        <div>
+                          <p className="font-bold text-secondary mb-1">Ministry Leader</p>
+                          <p className="text-sm">{selectedMinistry.leader}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
