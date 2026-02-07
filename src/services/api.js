@@ -66,6 +66,18 @@ export const api = {
         headers: getAuthHeader()
       });
       return handleResponse(res);
+    },
+    
+    resetUserPassword: async (id, newPassword) => {
+      const res = await fetch(`${API_URL}/auth/users/${id}/reset-password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader()
+        },
+        body: JSON.stringify({ newPassword })
+      });
+      return handleResponse(res);
     }
   },
 
@@ -255,6 +267,23 @@ export const api = {
       const res = await fetch(`${API_URL}/donations/${id}`, {
         method: 'DELETE',
         headers: getAuthHeader()
+      });
+      return handleResponse(res);
+    }
+  },
+
+  // Image Upload
+  upload: {
+    image: async (file) => {
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      const res = await fetch(`${API_URL}/upload`, {
+        method: 'POST',
+        headers: getAuthHeader(),
+        // Note: Do NOT set Content-Type header when sending FormData
+        // Fetch will automatically set it with the correct boundary
+        body: formData
       });
       return handleResponse(res);
     }

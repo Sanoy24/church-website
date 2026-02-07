@@ -143,6 +143,38 @@ async function run() {
                 "Dr. James Wilson",
                 "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2670&auto=format&fit=crop",
             ],
+            [
+                "Men's Ministry",
+                "Building strong men of faith through fellowship, accountability, and biblical discipleship.",
+                "The Men's Ministry provides a space for men of all ages to grow in their relationship with God and each other. We focus on biblical leadership, family responsibility, and personal integrity through weekly breakfast meetings and annual retreats.",
+                "Saturdays at 7:30 AM",
+                "Robert Thompson",
+                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2670&auto=format&fit=crop",
+            ],
+            [
+                "Women's Ministry",
+                "Fostering a community where women are encouraged, equipped, and empowered to serve.",
+                "Our Women's Ministry is dedicated to helping women discover their identity in Christ and their purpose in the world. We offer weekly Bible studies, mentorship programs, and seasonal events that provide spiritual nourishment and meaningful connection.",
+                "Tuesdays at 10:00 AM",
+                "Elizabeth Bennett",
+                "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=2669&auto=format&fit=crop",
+            ],
+            [
+                "Worship & Arts",
+                "Leading the congregation into the presence of God through music, media, and creative arts.",
+                "The Worship & Arts ministry is responsible for the musical and technical aspects of our services. From the choir and band to sound and lighting, our goal is to create an atmosphere where people can encounter the living God through authentic worship and creative expression.",
+                "Sundays at 8:00 AM (Rehearsal)",
+                "David Williams",
+                "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2670&auto=format&fit=crop",
+            ],
+            [
+                "Hospitality Team",
+                "Creating a warm and welcoming environment for every guest and member who enters our doors.",
+                "First impressions matter. Our Hospitality Team includes greeters, ushers, and the information desk staff. We are committed to showing the love of Christ by making everyone feel at home from the moment they arrive in our parking lot to the moment they leave.",
+                "Sundays - All Services",
+                "Linda Martinez",
+                "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=2669&auto=format&fit=crop",
+            ],
         ];
 
         for (const m of sampleMinistries) {

@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { Plus, Edit2, Trash2, X } from 'lucide-react';
+import DeleteConfirmModal from '../../components/admin/DeleteConfirmModal';
 
 const DonationsManager = () => {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingDonation, setEditingDonation] = useState(null);
+  const [deletingDonation, setDeletingDonation] = useState(null);
   const [formData, setFormData] = useState({
     bank_name: '',
     account_name: '',
@@ -45,11 +47,16 @@ const DonationsManager = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this donation account?')) return;
+  const handleDeleteClick = (donation) => {
+    setDeletingDonation(donation);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingDonation) return;
     try {
-      await api.donations.delete(id);
+      await api.donations.delete(deletingDonation.id);
       loadDonations();
+      setDeletingDonation(null);
     } catch (error) {
       alert('Failed to delete donation account: ' + error.message);
     }
@@ -120,7 +127,7 @@ const DonationsManager = () => {
                 Edit
               </button>
               <button
-                onClick={() => handleDelete(donation.id)}
+                onClick={() => handleDeleteClick(donation)}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium"
               >
                 <Trash2 size={16} />
@@ -220,6 +227,14 @@ const DonationsManager = () => {
           </div>
         </div>
       )}
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!deletingDonation}
+        onClose={() => setDeletingDonation(null)}
+        onConfirm={confirmDelete}
+        title="Delete Donation Account"
+        itemName={deletingDonation?.bank_name}
+      />
     </div>
   );
 };

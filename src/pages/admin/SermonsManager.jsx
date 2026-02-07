@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../services/api';
-import { Plus, Edit2, Trash2, Mic, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Mic, X, Upload, Loader2 } from 'lucide-react';
+import DeleteConfirmModal from '../../components/admin/DeleteConfirmModal';
 
 const SermonsManager = () => {
   const [sermons, setSermons] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingSermon, setEditingSermon] = useState(null);
+  const [deletingSermon, setDeletingSermon] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     series: '',
@@ -37,6 +40,21 @@ const SermonsManager = () => {
     }
   }, [formData.video_url, formData.image_url]);
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const result = await api.upload.image(file);
+      setFormData({ ...formData, image_url: result.url });
+    } catch (error) {
+      alert('Upload failed: ' + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const loadSermons = async () => {
     try {
       const data = await api.sermons.getAll();
@@ -63,11 +81,16 @@ const SermonsManager = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this sermon?')) return;
+  const handleDeleteClick = (sermon) => {
+    setDeletingSermon(sermon);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingSermon) return;
     try {
-      await api.sermons.delete(id);
+      await api.sermons.delete(deletingSermon.id);
       loadSermons();
+      setDeletingSermon(null);
     } catch (error) {
       alert('Failed to delete sermon: ' + error.message);
     }
@@ -139,7 +162,7 @@ const SermonsManager = () => {
                   <button onClick={() => handleEdit(sermon)} className="text-blue-600 hover:text-blue-800 mr-3">
                     <Edit2 size={18} />
                   </button>
-                  <button onClick={() => handleDelete(sermon.id)} className="text-red-600 hover:text-red-800">
+                  <button onClick={() => handleDeleteClick(sermon)} className="text-red-600 hover:text-red-800">
                     <Trash2 size={18} />
                   </button>
                 </td>
@@ -206,13 +229,45 @@ const SermonsManager = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Image URL</label>
-                <input
-                  type="url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                />
+                <label className="block text-sm font-bold text-gray-700 mb-2">Sermon Cover Image</label>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      placeholder="Paste image URL here..."
+                      value={formData.image_url}
+                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                    />
+                    <label className="relative flex items-center justify-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer border border-gray-300 min-w-[120px]">
+                      {uploading ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <Upload size={18} />
+                      )}
+                      <span className="ml-2 text-xs font-bold uppercase tracking-wider">
+                        {uploading ? 'Busy...' : 'Upload'}
+                      </span>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={uploading}
+                      />
+                    </label>
+                  </div>
+                  {formData.image_url && (
+                    <div className="relative h-32 w-full rounded-lg overflow-hidden border border-gray-200">
+                      <img 
+                        src={formData.image_url} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                        onError={(e) => e.target.style.display = 'none'}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div>
@@ -244,6 +299,14 @@ const SermonsManager = () => {
           </div>
         </div>
       )}
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!deletingSermon}
+        onClose={() => setDeletingSermon(null)}
+        onConfirm={confirmDelete}
+        title="Delete Sermon"
+        itemName={deletingSermon?.title}
+      />
     </div>
   );
 };

@@ -209,7 +209,23 @@ const Events = () => {
                     </button>
                 </div>
 
-                <div className="relative">
+                <div className="relative group">
+                    {/* Navigation Arrows */}
+                    <button
+                        onClick={() => scroll("left")}
+                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-secondary hover:text-primary transition-colors hidden lg:flex"
+                        aria-label="Scroll Left"
+                    >
+                        <ChevronLeft size={24} />
+                    </button>
+                    <button
+                        onClick={() => scroll("right")}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-6 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-secondary hover:text-primary transition-colors hidden lg:flex"
+                        aria-label="Scroll Right"
+                    >
+                        <ChevronRight size={24} />
+                    </button>
+
                     <div
                         ref={scrollerRef}
                         className="flex overflow-x-auto pb-8 gap-8 scroll-smooth no-scrollbar snap-x snap-mandatory"
@@ -276,26 +292,6 @@ const Events = () => {
 
                     {/* Visual Indicator (right gradient) */}
                     <div className="absolute right-0 top-1/2 -translate-y-1/2 w-20 h-full bg-gradient-to-l from-white to-transparent pointer-events-none md:opacity-0 group-hover:opacity-100 transition-opacity hidden md:block"></div>
-
-                    {/* Repositioned Arrows: Bottom Center */}
-                    <div className="mt-8 flex flex-col items-center gap-6">
-                        <div className="flex gap-4">
-                            <button
-                                onClick={() => scroll("left")}
-                                className="w-14 h-14 rounded-full border-2 border-primary text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-sm"
-                                aria-label="Scroll Left"
-                            >
-                                <ChevronLeft size={28} />
-                            </button>
-                            <button
-                                onClick={() => scroll("right")}
-                                className="w-14 h-14 rounded-full border-2 border-primary text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-sm"
-                                aria-label="Scroll Right"
-                            >
-                                <ChevronRight size={28} />
-                            </button>
-                        </div>
-                    </div>
                 </div>
 
                 <div className="mt-10 md:hidden text-center">

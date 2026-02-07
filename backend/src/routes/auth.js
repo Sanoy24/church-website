@@ -10,5 +10,6 @@ router.put('/change-password', auth, authController.changePassword);
 router.get('/me', auth, authController.getCurrentUser);
 router.get('/users', auth, checkRole(['admin']), authController.getAllUsers);
 router.delete('/users/:id', auth, checkRole(['admin']), authController.deleteUser);
+router.put('/users/:id/reset-password', auth, checkRole(['admin']), authController.adminResetPassword);
 
 module.exports = router;

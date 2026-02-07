@@ -64,6 +64,29 @@ const Donation = () => {
     );
   }
 
+  const pastors = [
+    {
+      name: "Rev. Dr. Tesfaye",
+      role: "Senior Pastor",
+      image: "https://images.unsplash.com/photo-1548142813-c348350df52b?q=80&w=2578&auto=format&fit=crop"
+    },
+    {
+      name: "Pastor Martha",
+      role: "Worship Leader",
+      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop"
+    },
+    {
+      name: "Pastor Elias",
+      role: "Youth Outreach",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2670&auto=format&fit=crop"
+    },
+    {
+      name: "Pastor Sarah",
+      role: "Children's Ministry",
+      image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=2622&auto=format&fit=crop"
+    }
+  ];
+
   return (
     <section id="donate" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -120,24 +143,40 @@ const Donation = () => {
           ))}
         </div>
 
-        <div className="mt-16 bg-secondary rounded-3xl p-10 text-white relative overflow-hidden">
-          <div className="absolute right-0 bottom-0 opacity-10 translate-x-1/4 translate-y-1/4">
-             <Heart size={300} fill="white" />
+        {/* Our Staff - Centered Horizontal Scroll */}
+        <div className="mt-24 border-t border-gray-100 pt-16">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl md:text-4xl font-serif font-bold text-secondary inline-block relative">
+              Our Staff
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-12 h-1 bg-primary"></div>
+            </h3>
           </div>
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="max-w-xl text-center md:text-left">
-              <h3 className="text-2xl md:text-3xl font-serif font-bold mb-4">Other Ways to Give?</h3>
-              <p className="text-gray-300">
-                If you prefer to give in person or via mobile payment platforms like Telebirr or M-Pesa, please visit our hospitality desk during service or contact our finance office.
-              </p>
-            </div>
-            <button className="px-8 py-4 bg-primary text-white font-bold uppercase tracking-widest rounded-full hover:bg-white hover:text-primary transition-all shadow-xl flex items-center gap-3">
-              Contact Finance <ExternalLink size={20} />
-            </button>
+
+          <div className="flex overflow-x-auto pb-8 gap-8 no-scrollbar snap-x justify-start md:justify-center">
+            {pastors.map((pastor, index) => (
+              <div 
+                key={index} 
+                className="flex-none w-[200px] group snap-center"
+              >
+                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-4 shadow-md group-hover:shadow-2xl transition-all duration-500">
+                  <img 
+                    src={pastor.image} 
+                    alt={pastor.name} 
+                    className="w-full h-full object-cover transition-all duration-700 scale-105 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-secondary/60 via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity"></div>
+                </div>
+                <div className="text-center">
+                  <h4 className="font-serif font-bold text-lg text-secondary group-hover:text-primary transition-colors">{pastor.name}</h4>
+                  <p className="text-primary text-[10px] font-bold uppercase tracking-[0.2em] mt-1">{pastor.role}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     </section>
+
   );
 };
 

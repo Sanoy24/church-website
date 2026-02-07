@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../services/api';
-import { Plus, Edit2, Trash2, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Upload, Loader2 } from 'lucide-react';
+import DeleteConfirmModal from '../../components/admin/DeleteConfirmModal';
 
 const MinistriesManager = () => {
   const [ministries, setMinistries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingMinistry, setEditingMinistry] = useState(null);
+  const [deletingMinistry, setDeletingMinistry] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -19,6 +22,21 @@ const MinistriesManager = () => {
   useEffect(() => {
     loadMinistries();
   }, []);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const result = await api.upload.image(file);
+      setFormData({ ...formData, image_url: result.url });
+    } catch (error) {
+      alert('Upload failed: ' + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const loadMinistries = async () => {
     try {
@@ -46,11 +64,16 @@ const MinistriesManager = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this ministry?')) return;
+  const handleDeleteClick = (ministry) => {
+    setDeletingMinistry(ministry);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingMinistry) return;
     try {
-      await api.ministries.delete(id);
+      await api.ministries.delete(deletingMinistry.id);
       loadMinistries();
+      setDeletingMinistry(null);
     } catch (error) {
       alert('Failed to delete ministry: ' + error.message);
     }
@@ -124,7 +147,7 @@ const MinistriesManager = () => {
                   Edit
                 </button>
                 <button
-                  onClick={() => handleDelete(ministry.id)}
+                  onClick={() => handleDeleteClick(ministry)}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium"
                 >
                   <Trash2 size={16} />
@@ -203,13 +226,45 @@ const MinistriesManager = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Image URL</label>
-                <input
-                  type="url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                />
+                <label className="block text-sm font-bold text-gray-700 mb-2">Image</label>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      placeholder="Paste image URL here..."
+                      value={formData.image_url}
+                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                    />
+                    <label className="relative flex items-center justify-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer border border-gray-300 min-w-[120px]">
+                      {uploading ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <Upload size={18} />
+                      )}
+                      <span className="ml-2 text-xs font-bold uppercase tracking-wider">
+                        {uploading ? 'Busy...' : 'Upload'}
+                      </span>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={uploading}
+                      />
+                    </label>
+                  </div>
+                  {formData.image_url && (
+                    <div className="relative h-32 w-full rounded-lg overflow-hidden border border-gray-200">
+                      <img 
+                        src={formData.image_url} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                        onError={(e) => e.target.style.display = 'none'}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex gap-3 pt-4">
@@ -231,6 +286,14 @@ const MinistriesManager = () => {
           </div>
         </div>
       )}
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!deletingMinistry}
+        onClose={() => setDeletingMinistry(null)}
+        onConfirm={confirmDelete}
+        title="Delete Ministry"
+        itemName={deletingMinistry?.title}
+      />
     </div>
   );
 };

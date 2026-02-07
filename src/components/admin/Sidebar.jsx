@@ -26,6 +26,10 @@ const Sidebar = () => {
     { to: '/admin/donations', icon: DollarSign, label: 'Donations' },
   ];
 
+  if (user?.role === 'admin') {
+    navItems.push({ to: '/admin/users', icon: Users, label: 'Users' });
+  }
+
   return (
     <div className="w-64 bg-secondary text-white flex flex-col h-screen">
       {/* Header */}
