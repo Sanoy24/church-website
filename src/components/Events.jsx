@@ -18,6 +18,65 @@ const Events = () => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [currentDate, setCurrentDate] = useState(new Date());
 
+    const downloadICS = (event) => {
+        const formatDate = (dateStr, timeStr) => {
+            // dateStr is "YYYY-MM-DD"
+            // timeStr is "hh:mm AM/PM"
+            const [hours, minutes] = timeStr.split(/:| /);
+            const isPM = timeStr.includes('PM');
+            let h = parseInt(hours);
+            if (isPM && h < 12) h += 12;
+            if (!isPM && h === 12) h = 0;
+            
+            const date = new Date(dateStr + 'T00:00:00');
+            date.setHours(h, parseInt(minutes));
+            
+            return date.toISOString().replace(/-|:|\.\d+/g, '');
+        };
+
+        const startTime = formatDate(event.date.full, event.time);
+        const endTime = formatDate(event.date.full, event.time); // Assuming same time for now as end time isn't stored
+
+        const icsContent = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'BEGIN:VEVENT',
+            `DTSTART:${startTime}`,
+            `DTEND:${endTime}`,
+            `SUMMARY:${event.title}`,
+            `DESCRIPTION:${event.description}`,
+            `LOCATION:${event.location}`,
+            'END:VEVENT',
+            'END:VCALENDAR'
+        ].join('\n');
+
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.setAttribute('download', `${event.title.replace(/\s+/g, '_')}.ics`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const addToGoogleCalendar = (event) => {
+        const formatDate = (dateStr, timeStr) => {
+            const [hours, minutes] = timeStr.split(/:| /);
+            const isPM = timeStr.includes('PM');
+            let h = parseInt(hours);
+            if (isPM && h < 12) h += 12;
+            if (!isPM && h === 12) h = 0;
+            
+            const date = new Date(dateStr + 'T00:00:00');
+            date.setHours(h, parseInt(minutes));
+            return date.toISOString().replace(/-|:|\.\d+/g, '');
+        };
+
+        const startTime = formatDate(event.date.full, event.time);
+        const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${startTime}/${startTime}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(event.location)}`;
+        window.open(url, '_blank');
+    };
+
     useEffect(() => {
         loadEvents();
     }, []);
@@ -153,6 +212,56 @@ const Events = () => {
         setCurrentDate(
             new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1),
         );
+
+    const downloadMonthICS = () => {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const monthEvents = events.filter(e => {
+            const d = new Date(e.date.full + 'T00:00:00');
+            return d.getFullYear() === year && d.getMonth() === month;
+        });
+
+        if (monthEvents.length === 0) return alert('No events found for this month.');
+
+        const formatDate = (dateStr, timeStr) => {
+            const [hours, minutes] = timeStr.split(/:| /);
+            const isPM = timeStr.includes('PM');
+            let h = parseInt(hours);
+            if (isPM && h < 12) h += 12;
+            if (!isPM && h === 12) h = 0;
+            const date = new Date(dateStr + 'T00:00:00');
+            date.setHours(h, parseInt(minutes));
+            return date.toISOString().replace(/-|:|\.\d+/g, '');
+        };
+
+        const icsEvents = monthEvents.map(event => {
+            const startTime = formatDate(event.date.full, event.time);
+            return [
+                'BEGIN:VEVENT',
+                `DTSTART:${startTime}`,
+                `DTEND:${startTime}`,
+                `SUMMARY:${event.title}`,
+                `DESCRIPTION:${event.description}`,
+                `LOCATION:${event.location}`,
+                'END:VEVENT'
+            ].join('\n');
+        }).join('\n');
+
+        const icsContent = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            icsEvents,
+            'END:VCALENDAR'
+        ].join('\n');
+
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.setAttribute('download', `${currentDate.toLocaleString('default', { month: 'long' })}_Events.ics`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     if (loading) {
         return (
@@ -374,9 +483,20 @@ const Events = () => {
                                 <p>{selectedEvent.description}</p>
                             </div>
 
-                            <button className="w-full py-4 bg-primary text-white font-bold uppercase tracking-widest rounded hover:bg-secondary transition-all shadow-lg">
-                                Add To Reminder
-                            </button>
+                            <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                                <button 
+                                    onClick={() => addToGoogleCalendar(selectedEvent)}
+                                    className="flex-1 py-4 bg-primary text-white font-bold uppercase tracking-widest rounded hover:bg-secondary transition-all shadow-lg text-xs"
+                                >
+                                    Add to Google
+                                </button>
+                                <button 
+                                    onClick={() => downloadICS(selectedEvent)}
+                                    className="flex-1 py-4 bg-gray-100 text-secondary font-bold uppercase tracking-widest rounded hover:bg-gray-200 transition-all shadow-lg text-xs"
+                                >
+                                    Apple / Outlook
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -452,16 +572,22 @@ const Events = () => {
                                     Sync with your apps
                                 </h3>
                                 <p className="text-gray-400 text-sm">
-                                    Download our events directly to your phone's
+                                    Download all events for {currentDate.toLocaleString('default', { month: 'long' })} directly to your phone's
                                     calendar.
                                 </p>
                             </div>
                             <div className="flex gap-4">
-                                <button className="px-6 py-3 bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded hover:bg-primary transition-all">
-                                    Add to Google
+                                <button 
+                                    onClick={() => alert('For Google Calendar, please use the "Add to Google" button on individual event details for now.')}
+                                    className="px-6 py-3 bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded hover:bg-primary transition-all"
+                                >
+                                    Google Calendar
                                 </button>
-                                <button className="px-6 py-3 bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded hover:bg-primary transition-all">
-                                    Apple Calendar
+                                <button 
+                                    onClick={downloadMonthICS}
+                                    className="px-6 py-3 bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded hover:bg-primary transition-all"
+                                >
+                                    Apple / Outlook (.ics)
                                 </button>
                             </div>
                         </div>
