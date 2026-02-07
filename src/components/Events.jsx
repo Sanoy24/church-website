@@ -27,19 +27,32 @@ const Events = () => {
             setLoading(true);
             setError(null);
             const data = await api.events.getAll();
-            // Transform date string to object for compatibility with existing rendering
-            const transformedEvents = data.map(event => {
-                const dateObj = new Date(event.date + 'T00:00:00'); // Add T00:00:00 to ensure UTC interpretation
-                const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-                return {
-                    ...event,
-                    date: {
-                        month: monthNames[dateObj.getMonth()],
-                        day: String(dateObj.getDate()).padStart(2, '0'),
-                        full: event.date // Keep the original full date string
-                    }
-                };
-            });
+            
+            const now = new Date();
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(now.getMonth() - 1);
+            const oneMonthAhead = new Date();
+            oneMonthAhead.setMonth(now.getMonth() + 1);
+
+            // Filter and Transform
+            const transformedEvents = data
+                .filter(event => {
+                    const eventDate = new Date(event.date + 'T00:00:00');
+                    return eventDate >= oneMonthAgo && eventDate <= oneMonthAhead;
+                })
+                .map(event => {
+                    const dateObj = new Date(event.date + 'T00:00:00');
+                    const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+                    return {
+                        ...event,
+                        date: {
+                            month: monthNames[dateObj.getMonth()],
+                            day: String(dateObj.getDate()).padStart(2, '0'),
+                            full: event.date
+                        },
+                        image: event.image_url // Ensure proper field mapping
+                    };
+                });
             setEvents(transformedEvents);
         } catch (err) {
             setError(err.message);
@@ -208,7 +221,7 @@ const Events = () => {
                             >
                                 <div className="relative h-56 overflow-hidden">
                                     <img
-                                        src={event.image}
+                                        src={event.image || "https://images.unsplash.com/photo-1510590611086-309679432aa8?q=80&w=2669&auto=format&fit=crop"}
                                         alt={event.title}
                                         className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                                     />
@@ -253,6 +266,12 @@ const Events = () => {
                                 </div>
                             </div>
                         ))}
+                        
+                        {events.length === 0 && (
+                            <div className="min-w-full text-center py-12">
+                                <p className="text-gray-500 italic">No events scheduled for this period.</p>
+                            </div>
+                        )}
                     </div>
 
                     {/* Visual Indicator (right gradient) */}

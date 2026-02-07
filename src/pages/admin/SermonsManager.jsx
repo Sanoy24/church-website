@@ -20,6 +20,23 @@ const SermonsManager = () => {
     loadSermons();
   }, []);
 
+  // Auto-fetch YouTube thumbnail
+  useEffect(() => {
+    const getYoutubeId = (url) => {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
+    };
+
+    const videoId = getYoutubeId(formData.video_url);
+    if (videoId && !formData.image_url) {
+      setFormData(prev => ({
+        ...prev,
+        image_url: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+      }));
+    }
+  }, [formData.video_url, formData.image_url]);
+
   const loadSermons = async () => {
     try {
       const data = await api.sermons.getAll();

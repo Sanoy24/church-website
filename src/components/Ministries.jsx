@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, X } from 'lucide-react';
+import { ArrowRight, Users, X } from 'lucide-react';
 import { api } from '../services/api';
 
 const Ministries = () => {

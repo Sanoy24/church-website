@@ -141,7 +141,10 @@ const Sermons = () => {
                     {sermon.title}
                   </h3>
                   <p className="text-gray-600 text-sm mb-4">By {sermon.preacher}</p>
-                  <button className="text-primary font-bold uppercase text-xs tracking-wider border-b-2 border-transparent hover:border-primary transition-all">
+                  <button 
+                    onClick={() => sermon.video_url && window.open(sermon.video_url, '_blank', 'noopener,noreferrer')}
+                    className="text-primary font-bold uppercase text-xs tracking-wider border-b-2 border-transparent hover:border-primary transition-all"
+                  >
                     Watch Sermon
                   </button>
                 </div>
@@ -244,7 +247,10 @@ const Sermons = () => {
                         {sermon.title}
                       </h3>
                       <p className="text-gray-400 text-xs mb-4 uppercase tracking-wide">By {sermon.preacher}</p>
-                      <button className="w-full py-3 border border-white/10 text-white text-[10px] font-bold uppercase tracking-[2px] hover:bg-white hover:text-secondary transition-all rounded-lg">
+                      <button 
+                        onClick={() => sermon.video_url && window.open(sermon.video_url, '_blank', 'noopener,noreferrer')}
+                        className="w-full py-3 border border-white/10 text-white text-[10px] font-bold uppercase tracking-[2px] hover:bg-white hover:text-secondary transition-all rounded-lg"
+                      >
                         Listen To Message
                       </button>
                     </div>
