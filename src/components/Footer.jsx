@@ -8,6 +8,25 @@ import {
     Mail,
 } from "lucide-react";
 
+const socialLinks = [
+    {
+        name: "Facebook",
+        icon: Facebook,
+        url: "https://www.facebook.com/p/Hawassa-Yehiwot-Birhan-Church-100064563617310/",
+    },
+    { name: "Twitter", icon: Twitter, url: "https://twitter.com/yourhandle" },
+    {
+        name: "Instagram",
+        icon: Instagram,
+        url: "https://instagram.com/yourhandle",
+    },
+    {
+        name: "Youtube",
+        icon: Youtube,
+        url: "https://www.youtube.com/@yhbctube1749",
+    },
+];
+
 const Footer = () => {
     return (
         <footer className="bg-secondary text-white pt-20 pb-10">
@@ -17,7 +36,7 @@ const Footer = () => {
                     <div>
                         <div className="flex items-center mb-6">
                             <span className="text-2xl font-bold font-serif uppercase tracking-wider text-white">
-                                Zegen<span className="text-primary">.</span>
+                                YHBC<span className="text-primary">.</span>
                             </span>
                         </div>
                         <p className="text-gray-400 mb-6 leading-relaxed text-sm">
@@ -26,7 +45,7 @@ const Footer = () => {
                             Christ. Join us in our journey of faith.
                         </p>
                         <div className="flex gap-4">
-                            {[Facebook, Twitter, Instagram, Youtube].map(
+                            {/* {[Facebook, Twitter, Instagram, Youtube].map(
                                 (Icon, i) => (
                                     <a
                                         key={i}
@@ -36,7 +55,19 @@ const Footer = () => {
                                         <Icon size={18} />
                                     </a>
                                 ),
-                            )}
+                            )} */}
+                            {socialLinks.map((link, i) => (
+                                <a
+                                    key={i}
+                                    href={link.url} // <-- Use the URL from the object
+                                    target="_blank" // Recommended for external links
+                                    rel="noopener noreferrer" // Security best practice
+                                    className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
+                                >
+                                    <link.icon size={18} />{" "}
+                                    {/* <-- Use the Icon from the object */}
+                                </a>
+                            ))}
                         </div>
                     </div>
 
@@ -95,7 +126,7 @@ const Footer = () => {
                                     size={20}
                                     className="text-primary shrink-0"
                                 />
-                                <span>hello@zegen-church.com</span>
+                                <span>hello@Yhbc-church.com</span>
                             </li>
                         </ul>
                     </div>
@@ -124,7 +155,7 @@ const Footer = () => {
 
                 <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-gray-500 text-sm text-center md:text-left">
-                        &copy; {new Date().getFullYear()} Zegen Church. All
+                        &copy; {new Date().getFullYear()} YHBC Church. All
                         Rights Reserved.
                     </p>
                     <div className="flex gap-6 text-sm text-gray-500">

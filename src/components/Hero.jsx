@@ -7,8 +7,7 @@ const Hero = () => {
             <div
                 className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transform scale-105 animate-slow-zoom"
                 style={{
-                    backgroundImage:
-                        "url('https://images.unsplash.com/photo-1438232992991-995b7058bbb3?q=80&w=2673&auto=format&fit=crop')",
+                    backgroundImage: "url('https://i.imgur.com/bpUzUv3.jpeg')",
                 }}
             >
                 <div className="absolute inset-0 bg-black/50 mix-blend-multiply"></div>
@@ -17,7 +16,7 @@ const Hero = () => {
             {/* Content */}
             <div className="relative z-10 text-center px-4 max-w-4xl mx-auto mt-16">
                 <span className="block text-primary font-bold tracking-[0.2em] uppercase mb-4 animate-fade-in-up">
-                    Welcome to Zegen Church
+                    Welcome to Ethiopian YeHiwot Berhan Hawassa Church
                 </span>
                 <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-6 leading-tight animate-fade-in-up delay-100">
                     Connect with God, <br /> Connect with People
@@ -29,7 +28,7 @@ const Hero = () => {
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up delay-300">
                     <a
-                        href="https://www.youtube.com/@dawitfassilministries"
+                        href="https://www.youtube.com/@yhbctube1749"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-8 py-4 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-red-600 transition-colors flex items-center justify-center gap-2 group"
@@ -37,7 +36,7 @@ const Hero = () => {
                         <PlayCircle size={20} /> Watch Online
                     </a>
                     <a
-                        href="https://t.me/DawitFassilMinistry"
+                        href="https://t.me/hawassayhbc"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-8 py-4 bg-transparent border-2 border-white text-white text-sm font-bold uppercase tracking-widest hover:bg-white hover:text-secondary transition-all flex items-center justify-center gap-2 group"

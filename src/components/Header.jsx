@@ -34,7 +34,7 @@ const Header = () => {
                             href="#"
                             className={`text-2xl font-bold font-serif uppercase tracking-wider ${scrolled ? "text-secondary" : "text-white"}`}
                         >
-                            Zegen<span className="text-primary">.</span>
+                            YHBC<span className="text-primary">.</span>
                         </a>
                     </div>
 
