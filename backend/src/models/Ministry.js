@@ -14,7 +14,7 @@ class Ministry {
   static async create(data) {
     const { title, description, detailed_description, schedule, leader, image_url } = data;
     const [result] = await pool.query(
-      'INSERT INTO ministries (title, description, detailed_description, schedule, leader, image_url) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO ministries (title, description, detailed_description, schedule, leader, image_url) VALUES (?, ?, ?, ?, ?, ?) RETURNING id',
       [title, description, detailed_description, schedule, leader, image_url]
     );
     return result.insertId;

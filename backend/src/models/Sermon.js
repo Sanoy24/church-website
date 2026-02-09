@@ -34,7 +34,7 @@ class Sermon {
   static async create(data) {
     const { title, series, preacher, date, image_url, video_url } = data;
     const [result] = await pool.query(
-      'INSERT INTO sermons (title, series, preacher, date, image_url, video_url) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO sermons (title, series, preacher, date, image_url, video_url) VALUES (?, ?, ?, ?, ?, ?) RETURNING id',
       [title, series, preacher, date, image_url, video_url]
     );
     return result.insertId;

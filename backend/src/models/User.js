@@ -10,7 +10,7 @@ class User {
   static async create(email, password, role = 'editor') {
     const hashedPassword = await bcrypt.hash(password, 10);
     const [result] = await pool.query(
-      'INSERT INTO users (email, password_hash, role) VALUES (?, ?, ?)',
+      'INSERT INTO users (email, password_hash, role) VALUES (?, ?, ?) RETURNING id',
       [email, hashedPassword, role]
     );
     return result.insertId;

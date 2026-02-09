@@ -14,7 +14,7 @@ class Donation {
   static async create(data) {
     const { bank_name, account_name, account_number, account_type, color } = data;
     const [result] = await pool.query(
-      'INSERT INTO donation_accounts (bank_name, account_name, account_number, account_type, color) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO donation_accounts (bank_name, account_name, account_number, account_type, color) VALUES (?, ?, ?, ?, ?) RETURNING id',
       [bank_name, account_name, account_number, account_type, color]
     );
     return result.insertId;

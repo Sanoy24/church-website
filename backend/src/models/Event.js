@@ -13,16 +13,17 @@ class Event {
 
   static async getByCalendar(year, month) {
     const [rows] = await pool.query(
-      'SELECT * FROM events WHERE YEAR(date) = ? AND MONTH(date) = ? ORDER BY date',
+      'SELECT * FROM events WHERE EXTRACT(YEAR FROM date) = ? AND EXTRACT(MONTH FROM date) = ? ORDER BY date',
       [year, month]
     );
     return rows;
   }
 
+
   static async create(data) {
     const { title, description, date, time, location, image_url } = data;
     const [result] = await pool.query(
-      'INSERT INTO events (title, description, date, time, location, image_url) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO events (title, description, date, time, location, image_url) VALUES (?, ?, ?, ?, ?, ?) RETURNING id',
       [title, description, date, time, location, image_url]
     );
     return result.insertId;

@@ -65,11 +65,14 @@ app.use((req, res) => {
 // Error handler
 app.use(errorHandler);
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📝 Environment: ${process.env.NODE_ENV}`);
-    console.log(`🌐 CORS enabled for: ${process.env.CORS_ORIGIN}`);
-});
+// Start server only when running locally (not in serverless environment)
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`📝 Environment: ${process.env.NODE_ENV}`);
+        console.log(`🌐 CORS enabled for: ${process.env.CORS_ORIGIN}`);
+    });
+}
 
 module.exports = app;
+
