@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { Lock, Mail, AlertCircle } from "lucide-react";
 
@@ -8,8 +8,17 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const { login, isAuthenticated } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            const from = location.state?.from?.pathname || "/admin/events";
+            navigate(from, { replace: true });
+        }
+    }, [isAuthenticated, navigate, location]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,13 +27,15 @@ const Login = () => {
 
         try {
             await login(email, password);
-            navigate("/admin/events");
+            const from = location.state?.from?.pathname || "/admin/events";
+            navigate(from, { replace: true });
         } catch (err) {
             setError(err.message || "Login failed");
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-secondary via-secondary to-primary flex items-center justify-center p-4">
