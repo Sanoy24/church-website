@@ -45,9 +45,10 @@ const uploadsPath = path.join(__dirname, "../uploads");
 app.use("/uploads", express.static(uploadsPath));
 
 // Health check
-app.get("/health", (req, res) => {
+app.get("/api/health", (req, res) => {
     res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
+
 
 // API Routes
 app.use("/api/ministries", ministriesRoutes);
