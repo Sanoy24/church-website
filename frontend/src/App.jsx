@@ -13,6 +13,7 @@ import SermonsManager from './pages/admin/SermonsManager';
 import MinistriesManager from './pages/admin/MinistriesManager';
 import DonationsManager from './pages/admin/DonationsManager';
 import UsersManager from './pages/admin/UsersManager';
+import Settings from './pages/admin/Settings';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
             <Route path="ministries" element={<MinistriesManager />} />
             <Route path="donations" element={<DonationsManager />} />
             <Route path="users" element={<UsersManager />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>
       </BrowserRouter>

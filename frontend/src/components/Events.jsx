@@ -8,7 +8,7 @@ import {
     ChevronLeft,
     ChevronRight,
 } from "lucide-react";
-import { api } from '../services/api';
+import { api } from "../services/api";
 
 const Events = () => {
     const [events, setEvents] = useState([]);
@@ -23,37 +23,42 @@ const Events = () => {
             // dateStr is "YYYY-MM-DD"
             // timeStr is "hh:mm AM/PM"
             const [hours, minutes] = timeStr.split(/:| /);
-            const isPM = timeStr.includes('PM');
+            const isPM = timeStr.includes("PM");
             let h = parseInt(hours);
             if (isPM && h < 12) h += 12;
             if (!isPM && h === 12) h = 0;
-            
-            const date = new Date(dateStr + 'T00:00:00');
+
+            const date = new Date(dateStr + "T00:00:00");
             date.setHours(h, parseInt(minutes));
-            
-            return date.toISOString().replace(/-|:|\.\d+/g, '');
+
+            return date.toISOString().replace(/-|:|\.\d+/g, "");
         };
 
         const startTime = formatDate(event.date.full, event.time);
         const endTime = formatDate(event.date.full, event.time); // Assuming same time for now as end time isn't stored
 
         const icsContent = [
-            'BEGIN:VCALENDAR',
-            'VERSION:2.0',
-            'BEGIN:VEVENT',
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "BEGIN:VEVENT",
             `DTSTART:${startTime}`,
             `DTEND:${endTime}`,
             `SUMMARY:${event.title}`,
             `DESCRIPTION:${event.description}`,
             `LOCATION:${event.location}`,
-            'END:VEVENT',
-            'END:VCALENDAR'
-        ].join('\n');
+            "END:VEVENT",
+            "END:VCALENDAR",
+        ].join("\n");
 
-        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-        const link = document.createElement('a');
+        const blob = new Blob([icsContent], {
+            type: "text/calendar;charset=utf-8",
+        });
+        const link = document.createElement("a");
         link.href = window.URL.createObjectURL(blob);
-        link.setAttribute('download', `${event.title.replace(/\s+/g, '_')}.ics`);
+        link.setAttribute(
+            "download",
+            `${event.title.replace(/\s+/g, "_")}.ics`,
+        );
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -62,19 +67,19 @@ const Events = () => {
     const addToGoogleCalendar = (event) => {
         const formatDate = (dateStr, timeStr) => {
             const [hours, minutes] = timeStr.split(/:| /);
-            const isPM = timeStr.includes('PM');
+            const isPM = timeStr.includes("PM");
             let h = parseInt(hours);
             if (isPM && h < 12) h += 12;
             if (!isPM && h === 12) h = 0;
-            
-            const date = new Date(dateStr + 'T00:00:00');
+
+            const date = new Date(dateStr + "T00:00:00");
             date.setHours(h, parseInt(minutes));
-            return date.toISOString().replace(/-|:|\.\d+/g, '');
+            return date.toISOString().replace(/-|:|\.\d+/g, "");
         };
 
         const startTime = formatDate(event.date.full, event.time);
         const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${startTime}/${startTime}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(event.location)}`;
-        window.open(url, '_blank');
+        window.open(url, "_blank");
     };
 
     useEffect(() => {
@@ -86,7 +91,7 @@ const Events = () => {
             setLoading(true);
             setError(null);
             const data = await api.events.getAll();
-            
+
             const now = new Date();
             const oneMonthAgo = new Date();
             oneMonthAgo.setMonth(now.getMonth() - 1);
@@ -95,21 +100,36 @@ const Events = () => {
 
             // Filter and Transform
             const transformedEvents = data
-                .filter(event => {
-                    const eventDate = new Date(event.date + 'T00:00:00');
-                    return eventDate >= oneMonthAgo && eventDate <= oneMonthAhead;
+                .filter((event) => {
+                    const eventDate = new Date(event.date);
+                    return (
+                        eventDate >= oneMonthAgo && eventDate <= oneMonthAhead
+                    );
                 })
-                .map(event => {
-                    const dateObj = new Date(event.date + 'T00:00:00');
-                    const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+                .map((event) => {
+                    const dateObj = new Date(event.date);
+                    const monthNames = [
+                        "JAN",
+                        "FEB",
+                        "MAR",
+                        "APR",
+                        "MAY",
+                        "JUN",
+                        "JUL",
+                        "AUG",
+                        "SEP",
+                        "OCT",
+                        "NOV",
+                        "DEC",
+                    ];
                     return {
                         ...event,
                         date: {
                             month: monthNames[dateObj.getMonth()],
-                            day: String(dateObj.getDate()).padStart(2, '0'),
-                            full: event.date
+                            day: String(dateObj.getDate()).padStart(2, "0"),
+                            full: dateObj.toISOString().split("T")[0],
                         },
-                        image: event.image_url // Ensure proper field mapping
+                        image: event.image_url, // Ensure proper field mapping
                     };
                 });
             setEvents(transformedEvents);
@@ -216,48 +236,56 @@ const Events = () => {
     const downloadMonthICS = () => {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
-        const monthEvents = events.filter(e => {
-            const d = new Date(e.date.full + 'T00:00:00');
+        const monthEvents = events.filter((e) => {
+            const d = new Date(e.date.full);
             return d.getFullYear() === year && d.getMonth() === month;
         });
 
-        if (monthEvents.length === 0) return alert('No events found for this month.');
+        if (monthEvents.length === 0)
+            return alert("No events found for this month.");
 
         const formatDate = (dateStr, timeStr) => {
             const [hours, minutes] = timeStr.split(/:| /);
-            const isPM = timeStr.includes('PM');
+            const isPM = timeStr.includes("PM");
             let h = parseInt(hours);
             if (isPM && h < 12) h += 12;
             if (!isPM && h === 12) h = 0;
-            const date = new Date(dateStr + 'T00:00:00');
+            const date = new Date(dateStr + "T00:00:00");
             date.setHours(h, parseInt(minutes));
-            return date.toISOString().replace(/-|:|\.\d+/g, '');
+            return date.toISOString().replace(/-|:|\.\d+/g, "");
         };
 
-        const icsEvents = monthEvents.map(event => {
-            const startTime = formatDate(event.date.full, event.time);
-            return [
-                'BEGIN:VEVENT',
-                `DTSTART:${startTime}`,
-                `DTEND:${startTime}`,
-                `SUMMARY:${event.title}`,
-                `DESCRIPTION:${event.description}`,
-                `LOCATION:${event.location}`,
-                'END:VEVENT'
-            ].join('\n');
-        }).join('\n');
+        const icsEvents = monthEvents
+            .map((event) => {
+                const startTime = formatDate(event.date.full, event.time);
+                return [
+                    "BEGIN:VEVENT",
+                    `DTSTART:${startTime}`,
+                    `DTEND:${startTime}`,
+                    `SUMMARY:${event.title}`,
+                    `DESCRIPTION:${event.description}`,
+                    `LOCATION:${event.location}`,
+                    "END:VEVENT",
+                ].join("\n");
+            })
+            .join("\n");
 
         const icsContent = [
-            'BEGIN:VCALENDAR',
-            'VERSION:2.0',
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
             icsEvents,
-            'END:VCALENDAR'
-        ].join('\n');
+            "END:VCALENDAR",
+        ].join("\n");
 
-        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-        const link = document.createElement('a');
+        const blob = new Blob([icsContent], {
+            type: "text/calendar;charset=utf-8",
+        });
+        const link = document.createElement("a");
         link.href = window.URL.createObjectURL(blob);
-        link.setAttribute('download', `${currentDate.toLocaleString('default', { month: 'long' })}_Events.ics`);
+        link.setAttribute(
+            "download",
+            `${currentDate.toLocaleString("default", { month: "long" })}_Events.ics`,
+        );
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -283,8 +311,10 @@ const Events = () => {
             <section id="events" className="py-24 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center py-20">
-                        <p className="text-red-600 mb-4">Failed to load events: {error}</p>
-                        <button 
+                        <p className="text-red-600 mb-4">
+                            Failed to load events: {error}
+                        </p>
+                        <button
                             onClick={loadEvents}
                             className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-red-600 transition-colors"
                         >
@@ -346,7 +376,10 @@ const Events = () => {
                             >
                                 <div className="relative h-56 overflow-hidden">
                                     <img
-                                        src={event.image || "https://images.unsplash.com/photo-1510590611086-309679432aa8?q=80&w=2669&auto=format&fit=crop"}
+                                        src={
+                                            event.image ||
+                                            "https://images.unsplash.com/photo-1510590611086-309679432aa8?q=80&w=2669&auto=format&fit=crop"
+                                        }
                                         alt={event.title}
                                         className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                                     />
@@ -391,10 +424,12 @@ const Events = () => {
                                 </div>
                             </div>
                         ))}
-                        
+
                         {events.length === 0 && (
                             <div className="min-w-full text-center py-12">
-                                <p className="text-gray-500 italic">No events scheduled for this period.</p>
+                                <p className="text-gray-500 italic">
+                                    No events scheduled for this period.
+                                </p>
                             </div>
                         )}
                     </div>
@@ -484,13 +519,15 @@ const Events = () => {
                             </div>
 
                             <div className="flex flex-col sm:flex-row gap-4 mb-4">
-                                <button 
-                                    onClick={() => addToGoogleCalendar(selectedEvent)}
+                                <button
+                                    onClick={() =>
+                                        addToGoogleCalendar(selectedEvent)
+                                    }
                                     className="flex-1 py-4 bg-primary text-white font-bold uppercase tracking-widest rounded hover:bg-secondary transition-all shadow-lg text-xs"
                                 >
                                     Add to Google
                                 </button>
-                                <button 
+                                <button
                                     onClick={() => downloadICS(selectedEvent)}
                                     className="flex-1 py-4 bg-gray-100 text-secondary font-bold uppercase tracking-widest rounded hover:bg-gray-200 transition-all shadow-lg text-xs"
                                 >
@@ -572,18 +609,25 @@ const Events = () => {
                                     Sync with your apps
                                 </h3>
                                 <p className="text-gray-400 text-sm">
-                                    Download all events for {currentDate.toLocaleString('default', { month: 'long' })} directly to your phone's
-                                    calendar.
+                                    Download all events for{" "}
+                                    {currentDate.toLocaleString("default", {
+                                        month: "long",
+                                    })}{" "}
+                                    directly to your phone's calendar.
                                 </p>
                             </div>
                             <div className="flex gap-4">
-                                <button 
-                                    onClick={() => alert('For Google Calendar, please use the "Add to Google" button on individual event details for now.')}
+                                <button
+                                    onClick={() =>
+                                        alert(
+                                            'For Google Calendar, please use the "Add to Google" button on individual event details for now.',
+                                        )
+                                    }
                                     className="px-6 py-3 bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded hover:bg-primary transition-all"
                                 >
                                     Google Calendar
                                 </button>
-                                <button 
+                                <button
                                     onClick={downloadMonthICS}
                                     className="px-6 py-3 bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded hover:bg-primary transition-all"
                                 >

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../services/api';
-import { UserPlus, Trash2, X, Mail, Shield, User as UserIcon, Key, Loader2 } from 'lucide-react';
+import { UserPlus, Trash2, X, Mail, Shield, User as UserIcon, Key, Loader2, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import DeleteConfirmModal from '../../components/admin/DeleteConfirmModal';
 
@@ -45,6 +45,9 @@ const UsersManager = () => {
     }
   };
 
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successEmail, setSuccessEmail] = useState('');
+
   const handleResetPassword = async (e) => {
     e.preventDefault();
     if (!resettingUser) return;
@@ -52,9 +55,10 @@ const UsersManager = () => {
     try {
       setIsResetting(true);
       await api.auth.resetUserPassword(resettingUser.id, resetPassword);
-      alert(`Password for ${resettingUser.email} has been reset successfully.`);
+      setSuccessEmail(resettingUser.email);
       setResettingUser(null);
       setResetPassword('');
+      setShowSuccessModal(true);
     } catch (error) {
       alert('Failed to reset password: ' + error.message);
     } finally {
@@ -320,6 +324,29 @@ const UsersManager = () => {
         itemName={deletingUser?.email}
         message={`Are you sure you want to delete staff account ${deletingUser?.email}? This will permanently remove their access to the dashboard.`}
       />
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div className="p-10 text-center">
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
+                <CheckCircle2 size={40} className="animate-in fade-in zoom-in duration-500 delay-200" />
+              </div>
+              <h2 className="text-2xl font-serif font-bold text-secondary mb-3">Password Reset Successfully!</h2>
+              <p className="text-gray-500 text-sm mb-8 leading-relaxed">
+                The password for <span className="font-bold text-secondary">{successEmail}</span> has been updated. They can now use their new password to log in.
+              </p>
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full px-6 py-3 bg-primary text-white rounded-xl hover:bg-red-600 transition-all transform active:scale-95 font-bold uppercase text-xs tracking-widest shadow-lg shadow-primary/20"
+              >
+                Got it, thanks!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -7,7 +7,8 @@ import {
   Users, 
   DollarSign, 
   LogOut,
-  Church
+  Church,
+  Settings as SettingsIcon
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -24,6 +25,7 @@ const Sidebar = () => {
     { to: '/admin/sermons', icon: Mic, label: 'Sermons' },
     { to: '/admin/ministries', icon: Users, label: 'Ministries' },
     { to: '/admin/donations', icon: DollarSign, label: 'Donations' },
+    { to: '/admin/settings', icon: SettingsIcon, label: 'Settings' },
   ];
 
   if (user?.role === 'admin') {

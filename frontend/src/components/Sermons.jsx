@@ -134,14 +134,17 @@ const Sermons = () => {
                 key={index} 
                 className="flex-none w-[300px] md:w-[400px] snap-start bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="relative h-48 md:h-56 group">
+                <div 
+                  className="relative h-48 md:h-56 group cursor-pointer"
+                  onClick={() => sermon.video_url && window.open(sermon.video_url, '_blank', 'noopener,noreferrer')}
+                >
                   <img 
                     src={sermon.image_url} 
                     alt={sermon.title} 
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white">
+                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 transition-transform">
                       <Play size={20} fill="currentColor" className="ml-1" />
                     </div>
                   </div>
@@ -221,7 +224,10 @@ const Sermons = () => {
                     key={index} 
                     className="group bg-white/5 rounded-2xl overflow-hidden border border-white/10 hover:border-primary/50 transition-all duration-300 animate-in zoom-in-95 duration-500 delay-[index*50ms]"
                   >
-                    <div className="relative h-48 overflow-hidden">
+                    <div 
+                      className="relative h-48 overflow-hidden cursor-pointer"
+                      onClick={() => sermon.video_url && window.open(sermon.video_url, '_blank', 'noopener,noreferrer')}
+                    >
                       <img 
                         src={sermon.image_url} 
                         alt={sermon.title} 
@@ -229,7 +235,7 @@ const Sermons = () => {
                       />
                       <div className="absolute inset-0 bg-secondary/40 group-hover:bg-transparent transition-colors"></div>
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-xl">
+                        <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-xl transform group-hover:scale-110 transition-transform">
                           <Play size={20} fill="currentColor" className="ml-1" />
                         </div>
                       </div>
