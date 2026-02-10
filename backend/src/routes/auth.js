@@ -4,7 +4,12 @@ const auth = require("../middleware/auth");
 const checkRole = require("../middleware/checkRole");
 
 const { authLimiter } = require("../middleware/rateLimiter");
-const { loginValidator, signupValidator } = require("../middleware/validators");
+const { 
+    loginValidator, 
+    signupValidator, 
+    changePasswordValidator, 
+    adminResetPasswordValidator 
+} = require("../middleware/validators");
 
 const router = express.Router();
 
@@ -20,9 +25,9 @@ router.post(
 router.put(
     "/change-password",
     auth,
-    signupValidator,
+    changePasswordValidator,
     authController.changePassword,
-); // reusing signupValidator for password length check
+);
 router.get("/me", auth, authController.getCurrentUser);
 router.get("/users", auth, checkRole(["admin"]), authController.getAllUsers);
 router.delete(
@@ -35,7 +40,7 @@ router.put(
     "/users/:id/reset-password",
     auth,
     checkRole(["admin"]),
-    signupValidator,
+    adminResetPasswordValidator,
     authController.adminResetPassword,
 );
 
