@@ -23,45 +23,48 @@
 
 // Lightweight SQLite compatibility wrapper exposing a `query` method
 // that returns `[rows, fields]` similar to mysql2/promise.
-const fs = require('fs');
-const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
+const fs = require("fs");
+const path = require("path");
+const sqlite3 = require("sqlite3").verbose();
 
-const dataDir = path.resolve(__dirname, '../../data');
+const dataDir = path.resolve(__dirname, "../../data");
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-const dbPath = path.join(dataDir, process.env.SQLITE_DB || 'dev.sqlite');
+const dbPath = path.join(dataDir, process.env.SQLITE_DB || "dev.sqlite");
 
 const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('❌ SQLite open error:', err.message);
-  } else {
-    console.log('✅ SQLite DB opened at', dbPath);
-  }
+    if (err) {
+        console.error("❌ SQLite open error:", err.message);
+    } else {
+        console.log("✅ SQLite DB opened at", dbPath);
+    }
 });
 
 function query(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    // Choose all vs run based on SQL verb
-    const verb = sql.trim().split(' ')[0].toUpperCase();
-    if (verb === 'SELECT' || verb === 'PRAGMA') {
-      db.all(sql, params, (err, rows) => {
-        if (err) return reject(err);
-        resolve([rows, undefined]);
-      });
-    } else {
-      db.run(sql, params, function (err) {
-        if (err) return reject(err);
-        // mimic mysql2 result: affectedRows / insertId
-        const result = { affectedRows: this.changes, insertId: this.lastID };
-        resolve([result, undefined]);
-      });
-    }
-  });
+    return new Promise((resolve, reject) => {
+        // Choose all vs run based on SQL verb
+        const verb = sql.trim().split(" ")[0].toUpperCase();
+        if (verb === "SELECT" || verb === "PRAGMA") {
+            db.all(sql, params, (err, rows) => {
+                if (err) return reject(err);
+                resolve([rows, undefined]);
+            });
+        } else {
+            db.run(sql, params, function (err) {
+                if (err) return reject(err);
+                // mimic mysql2 result: affectedRows / insertId
+                const result = {
+                    affectedRows: this.changes,
+                    insertId: this.lastID,
+                };
+                resolve([result, undefined]);
+            });
+        }
+    });
 }
 
 function getConnection() {
-  // return a dummy connection object with a release() method
-  return Promise.resolve({ release: () => {} });
+    // return a dummy connection object with a release() method
+    return Promise.resolve({ release: () => {} });
 }
 
 module.exports = { query, getConnection, raw: db };
