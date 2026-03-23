@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Search, Heart } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, X, Heart } from "lucide-react";
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const location = useLocation();
+    const isHomePage = location.pathname === "/";
 
     useEffect(() => {
         const handleScroll = () => {
@@ -14,12 +17,16 @@ const Header = () => {
     }, []);
 
     const navLinks = [
-        { name: "Home", href: "#hero" },
-        { name: "About ", href: "#aboutus" },
-        { name: "Ministries", href: "#ministries" },
-        { name: "Sermons", href: "#sermons" },
-        { name: "Events", href: "#events" },
-        { name: "Contact", href: "#footer" },
+        { name: "Home", href: isHomePage ? "#hero" : "/#hero" },
+        { name: "About ", href: isHomePage ? "#aboutus" : "/#aboutus" },
+        {
+            name: "Ministries",
+            href: isHomePage ? "#ministries" : "/#ministries",
+        },
+        { name: "Gallery", href: "/gallery" },
+        { name: "Sermons", href: isHomePage ? "#sermons" : "/#sermons" },
+        { name: "Events", href: isHomePage ? "#events" : "/#events" },
+        { name: "Contact", href: isHomePage ? "#footer" : "/#footer" },
     ];
 
     return (
@@ -30,12 +37,12 @@ const Header = () => {
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
                     <div className="flex-shrink-0 flex items-center">
-                        <a
-                            href="#"
+                        <Link
+                            to="/"
                             className={`text-2xl font-bold font-serif uppercase tracking-wider ${scrolled ? "text-secondary" : "text-white"}`}
                         >
                             YHBC<span className="text-primary">.</span>
-                        </a>
+                        </Link>
                     </div>
 
                     {/* Desktop Menu */}
@@ -53,11 +60,8 @@ const Header = () => {
                                 {link.name}
                             </a>
                         ))}
-                        {/* <button className="text-primary hover:text-primary/80 transition-colors">
-              <Search size={20} />
-            </button> */}
                         <a
-                            href="#donate"
+                            href={isHomePage ? "#donate" : "/#donate"}
                             className="px-5 py-2.5 bg-primary text-white text-sm font-bold uppercase rounded hover:bg-red-600 transition-colors flex items-center gap-2"
                         >
                             <Heart size={16} fill="currentColor" /> Donate
@@ -84,13 +88,14 @@ const Header = () => {
                             <a
                                 key={link.name}
                                 href={link.href}
+                                onClick={() => setIsOpen(false)}
                                 className="block px-3 py-2 text-base font-medium text-gray-800 hover:text-primary uppercase"
                             >
                                 {link.name}
                             </a>
                         ))}
                         <a
-                            href="#donate"
+                            href={isHomePage ? "#donate" : "/#donate"}
                             onClick={() => setIsOpen(false)}
                             className="mt-4 px-6 py-3 bg-primary text-white text-sm font-bold uppercase rounded hover:bg-red-600 transition-colors w-full text-center"
                         >

@@ -5,23 +5,40 @@ import { api } from '../services/api';
 const Donation = () => {
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [accounts, setAccounts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [staffMembers, setStaffMembers] = useState([]);
+  const [loadingAccounts, setLoadingAccounts] = useState(true);
+  const [loadingStaff, setLoadingStaff] = useState(true);
+  const [accountsError, setAccountsError] = useState(null);
+  const [staffError, setStaffError] = useState(null);
 
   useEffect(() => {
     loadAccounts();
+    loadStaffMembers();
   }, []);
 
   const loadAccounts = async () => {
-    setLoading(true);
-    setError(null);
+    setLoadingAccounts(true);
+    setAccountsError(null);
     try {
       const data = await api.donations.getAll();
       setAccounts(data);
     } catch (err) {
-      setError(err.message);
+      setAccountsError(err.message);
     } finally {
-      setLoading(false);
+      setLoadingAccounts(false);
+    }
+  };
+
+  const loadStaffMembers = async () => {
+    setLoadingStaff(true);
+    setStaffError(null);
+    try {
+      const data = await api.staff.getAll();
+      setStaffMembers(data);
+    } catch (err) {
+      setStaffError(err.message);
+    } finally {
+      setLoadingStaff(false);
     }
   };
 
@@ -31,7 +48,7 @@ const Donation = () => {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  if (loading) {
+  if (loadingAccounts) {
     return (
       <section id="donation" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,12 +63,12 @@ const Donation = () => {
     );
   }
 
-  if (error) {
+  if (accountsError) {
     return (
       <section id="donation" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-20">
-            <p className="text-red-600 mb-4">Failed to load donation accounts: {error}</p>
+            <p className="text-red-600 mb-4">Failed to load donation accounts: {accountsError}</p>
             <button 
               onClick={loadAccounts}
               className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-red-600 transition-colors"
@@ -63,29 +80,6 @@ const Donation = () => {
       </section>
     );
   }
-
-  const pastors = [
-    {
-      name: "Rev. Dr. Tesfaye",
-      role: "Senior Pastor",
-      image: "https://images.unsplash.com/photo-1548142813-c348350df52b?q=80&w=2578&auto=format&fit=crop"
-    },
-    {
-      name: "Pastor Martha",
-      role: "Worship Leader",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop"
-    },
-    {
-      name: "Pastor Elias",
-      role: "Youth Outreach",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2670&auto=format&fit=crop"
-    },
-    {
-      name: "Pastor Sarah",
-      role: "Children's Ministry",
-      image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=2622&auto=format&fit=crop"
-    }
-  ];
 
   return (
     <section id="donate" className="py-24 bg-white">
@@ -143,7 +137,7 @@ const Donation = () => {
           ))}
         </div>
 
-        {/* Our Staff - Centered Horizontal Scroll */}
+        {/* Our Staff */}
         <div className="mt-24 border-t border-gray-100 pt-16">
           <div className="text-center mb-12">
             <h3 className="text-3xl md:text-4xl font-serif font-bold text-secondary inline-block relative">
@@ -152,27 +146,65 @@ const Donation = () => {
             </h3>
           </div>
 
-          <div className="flex overflow-x-auto pb-8 gap-8 no-scrollbar snap-x justify-start md:justify-center">
-            {pastors.map((pastor, index) => (
-              <div 
-                key={index} 
-                className="flex-none w-[200px] group snap-center"
+          {loadingStaff ? (
+            <div className="flex justify-center py-12">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : staffError ? (
+            <div className="text-center py-8">
+              <p className="text-red-600 mb-4">Failed to load staff: {staffError}</p>
+              <button
+                onClick={loadStaffMembers}
+                className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-red-600 transition-colors"
               >
-                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-4 shadow-md group-hover:shadow-2xl transition-all duration-500">
-                  <img 
-                    src={pastor.image} 
-                    alt={pastor.name} 
-                    className="w-full h-full object-cover transition-all duration-700 scale-105 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-secondary/60 via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity"></div>
-                </div>
-                <div className="text-center">
-                  <h4 className="font-serif font-bold text-lg text-secondary group-hover:text-primary transition-colors">{pastor.name}</h4>
-                  <p className="text-primary text-[10px] font-bold uppercase tracking-[0.2em] mt-1">{pastor.role}</p>
+                Try Again
+              </button>
+            </div>
+          ) : staffMembers.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              Staff profiles will appear here once they are added.
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto pb-6 no-scrollbar">
+                <div className="flex min-w-max gap-6 px-1 snap-x snap-mandatory">
+                  {staffMembers.map((member) => (
+                    <div
+                      key={member.id}
+                      className="flex-none w-[220px] sm:w-[240px] group snap-start"
+                    >
+                      <div className="relative aspect-[4/5] rounded-[28px] overflow-hidden mb-4 shadow-md group-hover:shadow-2xl transition-all duration-500">
+                        <img
+                          src={member.image_url}
+                          alt={member.name}
+                          className="w-full h-full object-cover transition-all duration-700 scale-105 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/20 to-transparent opacity-80 group-hover:opacity-65 transition-opacity"></div>
+                      </div>
+                      <div className="text-center max-w-[220px] sm:max-w-[240px] mx-auto">
+                        <h4 className="font-serif font-bold text-lg text-secondary group-hover:text-primary transition-colors">
+                          {member.name}
+                        </h4>
+                        <p className="text-primary text-[10px] font-bold uppercase tracking-[0.2em] mt-1">
+                          {member.role}
+                        </p>
+                        {member.bio && (
+                          <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+                            {member.bio}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
+              {staffMembers.length > 3 && (
+                <p className="text-center text-xs font-bold uppercase tracking-[0.25em] text-gray-400">
+                  Scroll sideways to see more of the team
+                </p>
+              )}
+            </>
+          )}
         </div>
       </div>
     </section>

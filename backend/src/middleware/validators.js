@@ -107,6 +107,83 @@ const donationValidator = [
     validate,
 ];
 
+const staffValidator = [
+    body("name").notEmpty().trim().withMessage("Name is required"),
+    body("role").notEmpty().trim().withMessage("Role is required"),
+    body("image_url")
+        .notEmpty()
+        .withMessage("Image is required")
+        .bail()
+        .isURL({ require_tld: false })
+        .withMessage("Invalid image URL"),
+    body("bio").optional({ values: "falsy" }).trim(),
+    body("display_order")
+        .optional({ values: "falsy" })
+        .isInt({ min: 0 })
+        .withMessage("Display order must be a positive number"),
+    body("is_active")
+        .optional()
+        .isBoolean()
+        .withMessage("Active flag must be true or false"),
+    validate,
+];
+
+const galleryValidator = [
+    body("title").notEmpty().trim().withMessage("Title is required"),
+    body("image_url")
+        .notEmpty()
+        .withMessage("Image is required")
+        .bail()
+        .isURL({ require_tld: false })
+        .withMessage("Invalid image URL"),
+    body("description").optional({ values: "falsy" }).trim(),
+    body("category").optional({ values: "falsy" }).trim(),
+    body("event_date")
+        .optional({ values: "falsy" })
+        .isDate()
+        .withMessage("Invalid event date"),
+    body("display_order")
+        .optional({ values: "falsy" })
+        .isInt({ min: 0 })
+        .withMessage("Display order must be a positive number"),
+    body("is_featured")
+        .optional()
+        .isBoolean()
+        .withMessage("Featured flag must be true or false"),
+    validate,
+];
+
+const galleryBulkValidator = [
+    body("photos")
+        .isArray({ min: 1 })
+        .withMessage("Photos must be a non-empty array"),
+    body("photos.*.title")
+        .notEmpty()
+        .trim()
+        .withMessage("Title is required"),
+    body("photos.*.image_url")
+        .notEmpty()
+        .withMessage("Image is required")
+        .bail()
+        .isURL({ require_tld: false })
+        .withMessage("Invalid image URL"),
+    body("photos.*.description").optional({ values: "falsy" }).trim(),
+    body("photos.*.category").optional({ values: "falsy" }).trim(),
+    body("photos.*.event_date")
+        .optional({ values: "falsy" })
+        .isDate()
+        .withMessage("Invalid event date"),
+    body("photos.*.display_order")
+        .optional({ values: "falsy" })
+        .isInt({ min: 0 })
+        .withMessage("Display order must be a positive number"),
+    body("photos.*.is_featured")
+        .optional()
+        .isBoolean()
+        .withMessage("Featured flag must be true or false"),
+    validate,
+];
+
 module.exports = {
     loginValidator,
     signupValidator,
@@ -116,4 +193,7 @@ module.exports = {
     eventValidator,
     sermonValidator,
     donationValidator,
+    staffValidator,
+    galleryValidator,
+    galleryBulkValidator,
 };

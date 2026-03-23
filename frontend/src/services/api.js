@@ -1,4 +1,10 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const envApiUrl = import.meta.env.VITE_API_URL;
+const hasLocalhostApiUrl =
+    typeof envApiUrl === "string" &&
+    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(envApiUrl);
+
+const API_URL =
+    !import.meta.env.DEV && hasLocalhostApiUrl ? "/api" : envApiUrl || "/api";
 
 const getAuthHeader = () => {
     const token = localStorage.getItem("token");
@@ -237,6 +243,63 @@ export const api = {
         },
     },
 
+    // Gallery
+    gallery: {
+        getAll: async () => {
+            const res = await fetch(`${API_URL}/gallery`);
+            return handleResponse(res);
+        },
+
+        getById: async (id) => {
+            const res = await fetch(`${API_URL}/gallery/${id}`);
+            return handleResponse(res);
+        },
+
+        create: async (data) => {
+            const res = await fetch(`${API_URL}/gallery`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...getAuthHeader(),
+                },
+                body: JSON.stringify(data),
+            });
+            return handleResponse(res);
+        },
+
+        bulkCreate: async (photos) => {
+            const res = await fetch(`${API_URL}/gallery/bulk`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...getAuthHeader(),
+                },
+                body: JSON.stringify({ photos }),
+            });
+            return handleResponse(res);
+        },
+
+        update: async (id, data) => {
+            const res = await fetch(`${API_URL}/gallery/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...getAuthHeader(),
+                },
+                body: JSON.stringify(data),
+            });
+            return handleResponse(res);
+        },
+
+        delete: async (id) => {
+            const res = await fetch(`${API_URL}/gallery/${id}`, {
+                method: "DELETE",
+                headers: getAuthHeader(),
+            });
+            return handleResponse(res);
+        },
+    },
+
     // Donations
     donations: {
         getAll: async () => {
@@ -282,6 +345,53 @@ export const api = {
         },
     },
 
+    // Staff
+    staff: {
+        getAll: async () => {
+            const res = await fetch(`${API_URL}/staff`);
+            return handleResponse(res);
+        },
+
+        getAdminAll: async () => {
+            const res = await fetch(`${API_URL}/staff/all`, {
+                headers: getAuthHeader(),
+            });
+            return handleResponse(res);
+        },
+
+        create: async (data) => {
+            const res = await fetch(`${API_URL}/staff`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...getAuthHeader(),
+                },
+                body: JSON.stringify(data),
+            });
+            return handleResponse(res);
+        },
+
+        update: async (id, data) => {
+            const res = await fetch(`${API_URL}/staff/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...getAuthHeader(),
+                },
+                body: JSON.stringify(data),
+            });
+            return handleResponse(res);
+        },
+
+        delete: async (id) => {
+            const res = await fetch(`${API_URL}/staff/${id}`, {
+                method: "DELETE",
+                headers: getAuthHeader(),
+            });
+            return handleResponse(res);
+        },
+    },
+
     // Image Upload
     upload: {
         image: async (file) => {
@@ -293,6 +403,20 @@ export const api = {
                 headers: getAuthHeader(),
                 // Note: Do NOT set Content-Type header when sending FormData
                 // Fetch will automatically set it with the correct boundary
+                body: formData,
+            });
+            return handleResponse(res);
+        },
+
+        images: async (files) => {
+            const formData = new FormData();
+            files.forEach((file) => {
+                formData.append("images", file);
+            });
+
+            const res = await fetch(`${API_URL}/upload/bulk`, {
+                method: "POST",
+                headers: getAuthHeader(),
                 body: formData,
             });
             return handleResponse(res);

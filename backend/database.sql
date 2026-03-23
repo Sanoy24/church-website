@@ -46,6 +46,23 @@ CREATE TABLE IF NOT EXISTS sermons (
   INDEX idx_series (series)
 );
 
+-- Gallery Photos Table
+CREATE TABLE IF NOT EXISTS gallery_photos (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  category VARCHAR(100),
+  event_date DATE,
+  image_url VARCHAR(500) NOT NULL,
+  display_order INT DEFAULT 0,
+  is_featured BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_category (category),
+  INDEX idx_event_date (event_date),
+  INDEX idx_featured (is_featured)
+);
+
 -- Donation Accounts Table
 CREATE TABLE IF NOT EXISTS donation_accounts (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -56,6 +73,21 @@ CREATE TABLE IF NOT EXISTS donation_accounts (
   color VARCHAR(50),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Staff Members Table
+CREATE TABLE IF NOT EXISTS staff_members (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  role VARCHAR(255) NOT NULL,
+  bio TEXT,
+  image_url VARCHAR(500) NOT NULL,
+  display_order INT DEFAULT 0,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_staff_active (is_active),
+  INDEX idx_staff_order (display_order)
 );
 
 -- Users Table (for admin authentication)
@@ -86,7 +118,23 @@ INSERT INTO sermons (title, series, preacher, date, image_url) VALUES
 ('The Power of Prayer', 'Prayer Life', 'Pastor Sarah Lee', '2023-10-29', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=2670&auto=format&fit=crop'),
 ('Living with Purpose', 'Purpose Driven', 'Pastor John Smith', '2023-10-22', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=2670&auto=format&fit=crop');
 
+-- Sample Data for Gallery
+INSERT INTO gallery_photos (title, description, category, event_date, image_url, display_order, is_featured) VALUES
+('Sunday Worship Celebration', 'A joyful worship moment from our Sunday gathering.', 'Worship', '2025-02-16', 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2670&auto=format&fit=crop', 1, TRUE),
+('Youth Revival Night', 'Young people gathering for prayer, music, and fellowship.', 'Youth', '2025-01-24', 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?q=80&w=2669&auto=format&fit=crop', 2, TRUE),
+('Community Outreach Day', 'Serving families in the neighborhood with food and support.', 'Outreach', '2024-12-07', 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2670&auto=format&fit=crop', 3, FALSE),
+('Children Ministry Sunday', 'Children learning, laughing, and worshipping together.', 'Children', '2024-11-10', 'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?q=80&w=2669&auto=format&fit=crop', 4, FALSE),
+('Christmas Choir Rehearsal', 'Preparing songs and harmonies for the Christmas service.', 'Choir', '2024-12-18', 'https://images.unsplash.com/photo-1516280440614-6697288d5d38?q=80&w=2670&auto=format&fit=crop', 5, FALSE),
+('Church Family Gathering', 'A warm church family photo after a special service.', 'Community', '2024-10-27', 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=2670&auto=format&fit=crop', 6, FALSE);
+
 -- Sample Data for Donation Accounts
 INSERT INTO donation_accounts (bank_name, account_name, account_number, account_type, color) VALUES
 ('Commercial Bank of Ethiopia', 'Zegen Church', '1000123456789', 'Savings', 'orange'),
 ('Awash Bank', 'Zegen Church Ministries', '2000987654321', 'Current', 'blue');
+
+-- Sample Data for Staff Members
+INSERT INTO staff_members (name, role, bio, image_url, display_order, is_active) VALUES
+('Rev. Dr. Tesfaye', 'Senior Pastor', 'Guiding the church with wisdom, prayer, and a deep love for the Word.', 'https://images.unsplash.com/photo-1548142813-c348350df52b?q=80&w=2578&auto=format&fit=crop', 1, TRUE),
+('Pastor Martha', 'Worship Leader', 'Leading the congregation into heartfelt worship every week.', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop', 2, TRUE),
+('Pastor Elias', 'Youth Outreach', 'Mentoring young people and building spaces where they can grow in faith.', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2670&auto=format&fit=crop', 3, TRUE),
+('Pastor Sarah', 'Children''s Ministry', 'Serving children and families with joyful, Christ-centered care.', 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=2622&auto=format&fit=crop', 4, TRUE);

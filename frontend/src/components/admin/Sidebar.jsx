@@ -1,14 +1,14 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
-  LayoutDashboard, 
   Calendar, 
   Mic, 
   Users, 
   DollarSign, 
   LogOut,
   Church,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  Images
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -24,7 +24,9 @@ const Sidebar = () => {
     { to: '/admin/events', icon: Calendar, label: 'Events' },
     { to: '/admin/sermons', icon: Mic, label: 'Sermons' },
     { to: '/admin/ministries', icon: Users, label: 'Ministries' },
+    { to: '/admin/gallery', icon: Images, label: 'Gallery' },
     { to: '/admin/donations', icon: DollarSign, label: 'Donations' },
+    { to: '/admin/staff', icon: Users, label: 'Staff' },
     { to: '/admin/settings', icon: SettingsIcon, label: 'Settings' },
   ];
 
